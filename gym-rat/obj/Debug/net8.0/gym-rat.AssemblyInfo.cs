@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("gym-rat")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f8a142d0aa18f8e016f52eb8f9c358e4c65a235c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6772970d51fb1347ffc88333d42aecfce5e7dfac")]
 [assembly: System.Reflection.AssemblyProductAttribute("gym-rat")]
 [assembly: System.Reflection.AssemblyTitleAttribute("gym-rat")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
