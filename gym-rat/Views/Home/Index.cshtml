@@ -6,7 +6,7 @@
     <div class="container-fluid py-5">
         <h1 class="display-5 fw-bold">Transform Your Body</h1>
         <p class="col-md-8 fs-4">Join Gym Rat today and get access to top-tier equipment, expert trainers, and AI-powered workout plans tailored just for you.</p>
-        <button class="btn btn-primary btn-lg" type="button">Get Started</button>
+        <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Register">Get Started</a>
     </div>
 </div>
 
@@ -15,21 +15,21 @@
         <div class="h-100 p-5 text-white bg-dark rounded-3">
             <h2>Expert Trainers</h2>
             <p>Our certified trainers are here to guide you through every step of your fitness journey. Book a session today.</p>
-            <button class="btn btn-outline-light" type="button">View Trainers</button>
+            <a class="btn btn-outline-light" asp-controller="Trainers" asp-action="Index">View Trainers</a>
         </div>
     </div>
     <div class="col-md-4 mb-4">
         <div class="h-100 p-5 bg-light border rounded-3">
             <h2>AI Workout Plans</h2>
             <p>Upload your stats and let our AI generate a personalized workout and diet plan to help you reach your goals faster.</p>
-            <button class="btn btn-outline-secondary" type="button">Try AI Tool</button>
+            <a class="btn btn-outline-secondary" asp-controller="AI" asp-action="Index">Try AI Tool</a>
         </div>
     </div>
     <div class="col-md-4 mb-4">
         <div class="h-100 p-5 text-white bg-primary rounded-3">
             <h2>Premium Facilities</h2>
             <p>Experience our state-of-the-art equipment, sauna, and recovery zones. Open 24/7 for your convenience.</p>
-            <button class="btn btn-light text-primary" type="button">See Services</button>
+            <a class="btn btn-light text-primary" asp-controller="Services" asp-action="Index">See Services</a>
         </div>
     </div>
 </div>

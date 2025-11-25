@@ -7,9 +7,9 @@ namespace gym_rat.Models
         public int Id { get; set; }
 
         [Required]
-        public string Name { get; set; } // e.g., Yoga, Pilates, Fitness
+        public required string Name { get; set; } // e.g., Yoga, Pilates, Fitness
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public int DurationMinutes { get; set; }
 
@@ -17,8 +17,8 @@ namespace gym_rat.Models
         public decimal Price { get; set; }
 
         public int GymId { get; set; }
-        public Gym Gym { get; set; }
+        public Gym? Gym { get; set; }
 
-        public ICollection<Appointment> Appointments { get; set; }
+        public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     }
 }

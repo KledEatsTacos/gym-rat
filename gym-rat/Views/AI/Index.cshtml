@@ -1,0 +1,45 @@
+@{
+    ViewData["Title"] = "AI Workout Planner";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white p-4 rounded-top">
+                    <h2 class="mb-0"><i class="bi bi-robot"></i> AI Workout Planner</h2>
+                    <p class="mb-0 opacity-75">Enter your stats, and let our AI design your perfect routine.</p>
+                </div>
+                <div class="card-body p-5">
+                    <form asp-action="GeneratePlan" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="weight" class="form-label fw-bold">Weight (kg)</label>
+                                <input type="number" class="form-control form-control-lg" id="weight" name="weight" placeholder="e.g. 75" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="height" class="form-label fw-bold">Height (cm)</label>
+                                <input type="number" class="form-control form-control-lg" id="height" name="height" placeholder="e.g. 180" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="goal" class="form-label fw-bold">Fitness Goal</label>
+                                <select class="form-select form-select-lg" id="goal" name="goal" required>
+                                    <option value="" selected disabled>Choose your goal...</option>
+                                    <option value="weight_loss">Weight Loss</option>
+                                    <option value="muscle_gain">Muscle Gain</option>
+                                    <option value="endurance">Endurance / Cardio</option>
+                                    <option value="flexibility">Flexibility / Yoga</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-bold">
+                                    <i class="bi bi-magic"></i> Generate My Plan
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

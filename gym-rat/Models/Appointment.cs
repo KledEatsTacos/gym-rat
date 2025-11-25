@@ -10,13 +10,13 @@ namespace gym_rat.Models
 
         public string Status { get; set; } = "Pending"; // Pending, Confirmed, Cancelled
 
-        public string MemberId { get; set; }
-        public ApplicationUser Member { get; set; }
+        public required string MemberId { get; set; }
+        public ApplicationUser? Member { get; set; }
 
         public int TrainerId { get; set; }
-        public Trainer Trainer { get; set; }
+        public Trainer? Trainer { get; set; }
 
         public int ServiceId { get; set; }
-        public Service Service { get; set; }
+        public Service? Service { get; set; }
     }
 }

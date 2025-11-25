@@ -1,0 +1,49 @@
+@model IEnumerable<gym_rat.Models.Service>
+
+@{
+    ViewData["Title"] = "Our Services";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">Premium Services</h1>
+        <p class="lead text-muted">Choose the perfect class or session for your needs</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-hover align-middle mb-0 bg-white">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 ps-4">Service Name</th>
+                            <th class="py-3">Description</th>
+                            <th class="py-3 text-center">Duration</th>
+                            <th class="py-3 text-end pe-4">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No services available at the moment.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold">@item.Name</td>
+                                    <td class="text-muted">@item.Description</td>
+                                    <td class="text-center"><span class="badge bg-secondary">@item.DurationMinutes min</span></td>
+                                    <td class="text-end pe-4 fw-bold text-primary">@item.Price.ToString("C")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
