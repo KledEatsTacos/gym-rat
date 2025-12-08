@@ -1,0 +1,56 @@
+@model gym_rat.Models.Trainer
+
+@{
+    ViewData["Title"] = "Trainer Details";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-badge"></i> Trainer Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle display-1 text-secondary"></i>
+                        <h3 class="mt-3">@Model.FirstName @Model.LastName</h3>
+                        <span class="badge bg-primary fs-6">@Model.Specialization</span>
+                    </div>
+                    
+                    <hr />
+                    
+                    <dl class="row">
+                        <dt class="col-sm-4">First Name</dt>
+                        <dd class="col-sm-8">@Model.FirstName</dd>
+                        
+                        <dt class="col-sm-4">Last Name</dt>
+                        <dd class="col-sm-8">@Model.LastName</dd>
+                        
+                        <dt class="col-sm-4">Specialization</dt>
+                        <dd class="col-sm-8">@Model.Specialization</dd>
+                        
+                        <dt class="col-sm-4">Available Hours</dt>
+                        <dd class="col-sm-8">
+                            <i class="bi bi-clock"></i> 
+                            @Model.StartTime.ToString(@"hh\:mm") - @Model.EndTime.ToString(@"hh\:mm")
+                        </dd>
+                        
+                        <dt class="col-sm-4">Gym</dt>
+                        <dd class="col-sm-8">@Model.Gym?.Name</dd>
+                    </dl>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to List
+                    </a>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
