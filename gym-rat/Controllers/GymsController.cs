@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using gym_rat.Data;
 using gym_rat.Models;
 
 namespace gym_rat.Controllers
 {
     [Route("admin")]
+    [Authorize(Roles = "Admin")]
     public class GymsController : Controller
     {
         private readonly ApplicationDbContext _context;

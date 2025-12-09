@@ -5,11 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using gym_rat.Data;
 using gym_rat.Models;
 
 namespace gym_rat.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class TrainersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -19,7 +21,8 @@ namespace gym_rat.Controllers
             _context = context;
         }
 
-        // GET: Trainers
+        // GET: Trainers (Public - anyone can view trainers)
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var trainers = await _context.Trainers.Include(t => t.Gym).ToListAsync();
@@ -27,6 +30,7 @@ namespace gym_rat.Controllers
         }
 
         // GET: Trainers/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
