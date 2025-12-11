@@ -1,0 +1,72 @@
+@model gym_rat.Models.Appointment
+
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="bi bi-calendar-event"></i> Appointment Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        @switch (Model.Status)
+                        {
+                            case "Pending":
+                                <span class="badge bg-warning text-dark fs-5">Pending Approval</span>
+                                break;
+                            case "Confirmed":
+                                <span class="badge bg-success fs-5">Confirmed</span>
+                                break;
+                            case "Cancelled":
+                                <span class="badge bg-danger fs-5">Cancelled</span>
+                                break;
+                        }
+                    </div>
+                    
+                    <hr />
+                    
+                    <dl class="row">
+                        <dt class="col-sm-4">Date</dt>
+                        <dd class="col-sm-8">@Model.AppointmentDate.ToString("dddd, MMMM dd, yyyy")</dd>
+                        
+                        <dt class="col-sm-4">Time</dt>
+                        <dd class="col-sm-8">@Model.AppointmentDate.ToString("HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Service</dt>
+                        <dd class="col-sm-8">
+                            @Model.Service?.Name
+                            <small class="text-muted">(@Model.Service?.DurationMinutes min)</small>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Price</dt>
+                        <dd class="col-sm-8 fw-bold text-primary">@Model.Service?.Price.ToString("C")</dd>
+                        
+                        <dt class="col-sm-4">Trainer</dt>
+                        <dd class="col-sm-8">@Model.Trainer?.FirstName @Model.Trainer?.LastName</dd>
+                        
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <dt class="col-sm-4">Member</dt>
+                            <dd class="col-sm-8">@Model.Member?.Email</dd>
+                        }
+                    </dl>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                    @if (Model.Status == "Pending" || Model.Status == "Confirmed")
+                    {
+                        <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-danger">
+                            <i class="bi bi-x-circle"></i> Cancel Appointment
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

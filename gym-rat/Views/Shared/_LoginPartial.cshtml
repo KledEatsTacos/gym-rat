@@ -8,12 +8,24 @@
 {
     @if (User.IsInRole("Admin"))
     {
-        <li class="nav-item">
-            <a class="nav-link text-warning" asp-controller="Gyms" asp-action="Index">
-                <i class="bi bi-gear"></i> Admin Panel
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-warning" href="#" role="button" data-bs-toggle="dropdown">
+                <i class="bi bi-gear"></i> Admin
             </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" asp-controller="Gyms" asp-action="Index"><i class="bi bi-building"></i> Manage Gyms</a></li>
+                <li><a class="dropdown-item" asp-controller="Trainers" asp-action="Create"><i class="bi bi-person-plus"></i> Add Trainer</a></li>
+                <li><a class="dropdown-item" asp-controller="Services" asp-action="Create"><i class="bi bi-plus-circle"></i> Add Service</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" asp-controller="Appointments" asp-action="Manage"><i class="bi bi-clipboard-check"></i> Pending Appointments</a></li>
+            </ul>
         </li>
     }
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> My Appointments
+        </a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
             <i class="bi bi-person-circle"></i> @User.Identity?.Name

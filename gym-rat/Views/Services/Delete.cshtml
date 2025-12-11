@@ -1,0 +1,47 @@
+@model gym_rat.Models.Service
+
+@{
+    ViewData["Title"] = "Delete Service";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Delete Service</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Warning!</strong> Are you sure you want to delete this service? This action cannot be undone.
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold">@Model.Name</h3>
+                        <span class="badge bg-primary fs-5">@Model.Price.ToString("C")</span>
+                    </div>
+                    
+                    <dl class="row">
+                        <dt class="col-sm-4">Duration</dt>
+                        <dd class="col-sm-8">@Model.DurationMinutes minutes</dd>
+                        
+                        <dt class="col-sm-4">Gym</dt>
+                        <dd class="col-sm-8">@Model.Gym?.Name</dd>
+                    </dl>
+                    
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete Service
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

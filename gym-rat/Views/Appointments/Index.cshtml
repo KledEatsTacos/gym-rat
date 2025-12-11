@@ -1,0 +1,95 @@
+@model IEnumerable<gym_rat.Models.Appointment>
+
+@{
+    ViewData["Title"] = User.IsInRole("Admin") ? "All Appointments" : "My Appointments";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold">
+            <i class="bi bi-calendar-check"></i> @ViewData["Title"]
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Book Appointment
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0 bg-white">
+            <thead class="bg-light">
+                <tr>
+                    <th class="py-3 ps-4">Date & Time</th>
+                    <th class="py-3">Service</th>
+                    <th class="py-3">Trainer</th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th class="py-3">Member</th>
+                    }
+                    <th class="py-3 text-center">Status</th>
+                    <th class="py-3 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            No appointments found. <a asp-action="Create">Book one now!</a>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <strong>@item.AppointmentDate.ToString("MMM dd, yyyy")</strong><br />
+                                <small class="text-muted">@item.AppointmentDate.ToString("HH:mm")</small>
+                            </td>
+                            <td>@item.Service?.Name</td>
+                            <td>@item.Trainer?.FirstName @item.Trainer?.LastName</td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td>@item.Member?.Email</td>
+                            }
+                            <td class="text-center">
+                                @switch (item.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        break;
+                                    case "Confirmed":
+                                        <span class="badge bg-success">Confirmed</span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        break;
+                                }
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                @if (item.Status == "Pending" || item.Status == "Confirmed")
+                                {
+                                    <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

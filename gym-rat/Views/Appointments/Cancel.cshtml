@@ -1,0 +1,45 @@
+@model gym_rat.Models.Appointment
+
+@{
+    ViewData["Title"] = "Cancel Appointment";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Cancel Appointment</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Warning!</strong> Are you sure you want to cancel this appointment?
+                    </div>
+                    
+                    <dl class="row">
+                        <dt class="col-sm-4">Date & Time</dt>
+                        <dd class="col-sm-8">@Model.AppointmentDate.ToString("MMM dd, yyyy HH:mm")</dd>
+                        
+                        <dt class="col-sm-4">Service</dt>
+                        <dd class="col-sm-8">@Model.Service?.Name</dd>
+                        
+                        <dt class="col-sm-4">Trainer</dt>
+                        <dd class="col-sm-8">@Model.Trainer?.FirstName @Model.Trainer?.LastName</dd>
+                    </dl>
+                    
+                    <form asp-action="Cancel">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> Go Back
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-x-circle"></i> Yes, Cancel Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
