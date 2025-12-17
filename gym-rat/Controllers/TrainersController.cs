@@ -52,22 +52,25 @@ namespace gym_rat.Controllers
         // GET: Trainers/Create
         public IActionResult Create()
         {
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name");
             return View();
         }
 
         // POST: Trainers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Specialization,StartTime,EndTime,GymId")] Trainer trainer)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,LastName,Specialization,StartTime,EndTime")] Trainer trainer)
         {
+            // Auto-assign to the single gym
+            var gym = await _context.Gyms.FirstOrDefaultAsync();
+            if (gym == null) return NotFound("No gym found in the system.");
+            trainer.GymId = gym.Id;
+
             if (ModelState.IsValid)
             {
                 _context.Add(trainer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", trainer.GymId);
             return View(trainer);
         }
 
@@ -84,7 +87,6 @@ namespace gym_rat.Controllers
             {
                 return NotFound();
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", trainer.GymId);
             return View(trainer);
         }
 
@@ -118,7 +120,6 @@ namespace gym_rat.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", trainer.GymId);
             return View(trainer);
         }
 

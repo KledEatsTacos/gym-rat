@@ -52,22 +52,25 @@ namespace gym_rat.Controllers
         // GET: Services/Create
         public IActionResult Create()
         {
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name");
             return View();
         }
 
         // POST: Services/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,DurationMinutes,Price,GymId")] Service service)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,DurationMinutes,Price")] Service service)
         {
+            // Auto-assign to the single gym
+            var gym = await _context.Gyms.FirstOrDefaultAsync();
+            if (gym == null) return NotFound("No gym found in the system.");
+            service.GymId = gym.Id;
+
             if (ModelState.IsValid)
             {
                 _context.Add(service);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", service.GymId);
             return View(service);
         }
 
@@ -84,7 +87,6 @@ namespace gym_rat.Controllers
             {
                 return NotFound();
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", service.GymId);
             return View(service);
         }
 
@@ -118,7 +120,6 @@ namespace gym_rat.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["GymId"] = new SelectList(_context.Gyms, "Id", "Name", service.GymId);
             return View(service);
         }
 

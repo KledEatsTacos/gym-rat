@@ -48,13 +48,7 @@
                             </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label asp-for="GymId" class="form-label">Gym</label>
-                            <select asp-for="GymId" class="form-select" asp-items="ViewBag.GymId">
-                                <option value="">-- Select Gym --</option>
-                            </select>
-                            <span asp-validation-for="GymId" class="text-danger"></span>
-                        </div>
+                        <input type="hidden" asp-for="GymId" />
                         
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary">
