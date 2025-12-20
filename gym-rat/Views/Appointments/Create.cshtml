@@ -61,23 +61,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold"><i class="bi bi-clock"></i> Time</label>
-                                <select id="timePart" class="form-select form-select-lg" required>
-                                    <option value="08:00">08:00</option>
-                                    <option value="09:00">09:00</option>
-                                    <option value="10:00" selected>10:00</option>
-                                    <option value="11:00">11:00</option>
-                                    <option value="12:00">12:00</option>
-                                    <option value="13:00">13:00</option>
-                                    <option value="14:00">14:00</option>
-                                    <option value="15:00">15:00</option>
-                                    <option value="16:00">16:00</option>
-                                    <option value="17:00">17:00</option>
-                                    <option value="18:00">18:00</option>
-                                    <option value="19:00">19:00</option>
-                                    <option value="20:00">20:00</option>
-                                    <option value="21:00">21:00</option>
+                                <select id="timePart" class="form-select form-select-lg" required disabled>
+                                    <option value="">-- Select Date First --</option>
                                 </select>
-                                <div class="form-text">Trainer availability will be validated upon booking.</div>
+                                <div class="form-text" id="timeSlotHelp">Available slots based on trainer's schedule.</div>
                             </div>
                         </div>
 
@@ -87,7 +74,7 @@
                             <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
                                 <i class="bi bi-arrow-left"></i> Back
                             </a>
-                            <button type="submit" class="btn btn-primary btn-lg">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
                                 <i class="bi bi-check-lg"></i> Book Appointment
                             </button>
                         </div>
@@ -100,10 +87,92 @@
 
 @section Scripts {
     <script>
-        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
-            var date = document.getElementById('datePart').value;
-            var time = document.getElementById('timePart').value;
-            document.getElementById('appointmentDate').value = date + 'T' + time;
+        document.addEventListener('DOMContentLoaded', function() {
+            const trainerSelect = document.getElementById('trainerSelect');
+            const dateInput = document.getElementById('datePart');
+            const timeSelect = document.getElementById('timePart');
+            const submitBtn = document.getElementById('submitBtn');
+            const appointmentDateInput = document.getElementById('appointmentDate');
+            const timeSlotHelp = document.getElementById('timeSlotHelp');
+
+            function updateTimeSlots() {
+                const trainerId = trainerSelect.value;
+                const date = dateInput.value;
+
+                if (!trainerId || !date) {
+                    timeSelect.innerHTML = '<option value="">-- Select Trainer & Date --</option>';
+                    timeSelect.disabled = true;
+                    submitBtn.disabled = true;
+                    return;
+                }
+
+                // Show loading state
+                timeSelect.innerHTML = '<option>Loading availability...</option>';
+                timeSelect.disabled = true;
+                submitBtn.disabled = true;
+
+                // Call API (LINQ backed)
+                fetch(`/api/trainersapi/${trainerId}/timeslots?date=${date}`)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Failed to fetch");
+                        return response.json();
+                    })
+                    .then(data => {
+                        timeSelect.innerHTML = '';
+                        
+                        if (data.timeSlots && data.timeSlots.length > 0) {
+                            const availableSlots = data.timeSlots.filter(s => s.available);
+                            
+                            if (availableSlots.length === 0) {
+                                timeSelect.innerHTML = '<option value="">Fully booked for this date</option>';
+                                timeSelect.disabled = true;
+                                timeSlotHelp.className = "form-text text-danger";
+                                timeSlotHelp.innerText = "No available slots left for this date.";
+                            } else {
+                                timeSelect.innerHTML = '<option value="">-- Select a Time --</option>';
+                                availableSlots.forEach(slot => {
+                                    const option = document.createElement('option');
+                                    option.value = slot.time;
+                                    option.text = slot.time;
+                                    timeSelect.appendChild(option);
+                                });
+                                timeSelect.disabled = false;
+                                timeSlotHelp.className = "form-text text-success";
+                                timeSlotHelp.innerText = `${availableSlots.length} available slots found.`;
+                            }
+                        } else {
+                            timeSelect.innerHTML = '<option value="">No slots configured</option>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        timeSelect.innerHTML = '<option value="">Error loading slots</option>';
+                        timeSlotHelp.innerText = "Could not check availability.";
+                    });
+            }
+
+            // Update hidden field on submission
+            document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+                const date = dateInput.value;
+                const time = timeSelect.value;
+                
+                if(date && time) {
+                    appointmentDateInput.value = date + 'T' + time;
+                } else {
+                    e.preventDefault();
+                    alert("Please select a valid time.");
+                }
+            });
+
+            // Listeners
+            trainerSelect.addEventListener('change', updateTimeSlots);
+            dateInput.addEventListener('change', updateTimeSlots);
+            timeSelect.addEventListener('change', function() {
+                submitBtn.disabled = !this.value;
+            });
+            
+            // Initial check if fields are pre-filled
+            if(trainerSelect.value && dateInput.value) updateTimeSlots();
         });
     </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

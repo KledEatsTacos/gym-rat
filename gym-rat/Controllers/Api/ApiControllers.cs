@@ -127,18 +127,20 @@ namespace gym_rat.Controllers.Api
                     return BadRequest(new { Message = "Invalid date format" });
                 }
 
-                // Date range for PostgreSQL compatibility
-                var startOfDay = parsedDate.Date;
-                var endOfDay = parsedDate.Date.AddDays(1);
+                // Date range for PostgreSQL compatibility - MUST be UTC
+                var startOfDay = DateTime.SpecifyKind(parsedDate.Date, DateTimeKind.Utc);
+                var endOfDay = startOfDay.AddDays(1);
 
                 // Get booked appointment times for this trainer on this date
                 var bookedTimes = await _context.Appointments
                     .Include(a => a.Service)
                     .Where(a => a.TrainerId == id)
+                    // Comparison should be safe now that startOfDay is Utc
                     .Where(a => a.AppointmentDate >= startOfDay && a.AppointmentDate < endOfDay)
                     .Where(a => a.Status != "Cancelled")
                     .Select(a => new { 
                         Start = a.AppointmentDate.TimeOfDay, 
+                        // If Service is null, assume 60 mins
                         Duration = a.Service != null ? a.Service.DurationMinutes : 60 
                     })
                     .ToListAsync();
