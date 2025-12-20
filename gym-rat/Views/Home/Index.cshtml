@@ -6,7 +6,14 @@
     <div class="container-fluid py-5">
         <h1 class="display-5 fw-bold">Transform Your Body</h1>
         <p class="col-md-8 fs-4">Join Gym Rat today and get access to top-tier equipment, expert trainers, and AI-powered workout plans tailored just for you.</p>
-        <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Register">Get Started</a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="btn btn-primary btn-lg" asp-controller="Appointments" asp-action="Create"><i class="bi bi-calendar-plus"></i> Book Appointment</a>
+        }
+        else
+        {
+            <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Register">Get Started</a>
+        }
     </div>
 </div>
 

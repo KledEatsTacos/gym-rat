@@ -1,5 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Book Appointment";
+    var trainers = ViewData["TrainerId"] as SelectList;
+    var services = ViewData["ServiceId"] as SelectList;
 }
 
 <div class="container py-5">
@@ -10,43 +13,80 @@
                     <h4 class="mb-0"><i class="bi bi-calendar-plus"></i> Book an Appointment</h4>
                 </div>
                 <div class="card-body">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Any(x => x.Value?.Errors.Count > 0))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <span>@error.ErrorMessage</span>
+                            }
+                        </div>
+                    }
+
                     <form asp-action="Create" method="post">
-                        <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Select Trainer</label>
-                            <select name="TrainerId" class="form-select" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="bi bi-person"></i> Select Trainer</label>
+                            <select name="TrainerId" class="form-select form-select-lg" required>
                                 <option value="">-- Choose a Trainer --</option>
-                                @foreach (var trainer in (SelectList)ViewData["TrainerId"]!)
+                                @if (trainers != null)
                                 {
-                                    <option value="@trainer.Value">@trainer.Text</option>
+                                    @foreach (var trainer in trainers)
+                                    {
+                                        <option value="@trainer.Value">@trainer.Text</option>
+                                    }
                                 }
                             </select>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Select Service</label>
-                            <select name="ServiceId" class="form-select" required>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="bi bi-list-check"></i> Select Service</label>
+                            <select name="ServiceId" class="form-select form-select-lg" required>
                                 <option value="">-- Choose a Service --</option>
-                                @foreach (var service in (SelectList)ViewData["ServiceId"]!)
+                                @if (services != null)
                                 {
-                                    <option value="@service.Value">@service.Text</option>
+                                    @foreach (var service in services)
+                                    {
+                                        <option value="@service.Value">@service.Text</option>
+                                    }
                                 }
                             </select>
                         </div>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Appointment Date & Time</label>
-                            <input type="datetime-local" name="AppointmentDate" class="form-control" required 
-                                   min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
-                            <div class="form-text">Choose a date and time within the trainer's working hours.</div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar"></i> Date</label>
+                                <input type="date" name="AppointmentDatePart" id="datePart" class="form-control form-control-lg" 
+                                       required min="@DateTime.Now.ToString("yyyy-MM-dd")" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="bi bi-clock"></i> Time</label>
+                                <select name="AppointmentTimePart" id="timePart" class="form-select form-select-lg" required>
+                                    <option value="08:00">08:00</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00" selected>10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="20:00">20:00</option>
+                                    <option value="21:00">21:00</option>
+                                </select>
+                            </div>
                         </div>
+
+                        <input type="hidden" name="AppointmentDate" id="appointmentDate" />
                         
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
                                 <i class="bi bi-arrow-left"></i> Back
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-check-lg"></i> Book Appointment
                             </button>
                         </div>
@@ -58,5 +98,12 @@
 </div>
 
 @section Scripts {
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var date = document.getElementById('datePart').value;
+            var time = document.getElementById('timePart').value;
+            document.getElementById('appointmentDate').value = date + 'T' + time;
+        });
+    </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
