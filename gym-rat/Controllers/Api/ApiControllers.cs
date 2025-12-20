@@ -107,6 +107,82 @@ namespace gym_rat.Controllers.Api
 
             return Ok(trainer);
         }
+
+        // GET: api/trainersapi/{id}/timeslots?date=2024-12-20
+        // Returns available time slots for a trainer on a specific date
+        [HttpGet("{id}/timeslots")]
+        public async Task<ActionResult<object>> GetAvailableTimeSlots(int id, [FromQuery] string date)
+        {
+            try
+            {
+                var trainer = await _context.Trainers.FindAsync(id);
+                if (trainer == null)
+                {
+                    return NotFound(new { Message = "Trainer not found" });
+                }
+
+                // Parse the date
+                if (!DateTime.TryParse(date, out DateTime parsedDate))
+                {
+                    return BadRequest(new { Message = "Invalid date format" });
+                }
+
+                // Date range for PostgreSQL compatibility
+                var startOfDay = parsedDate.Date;
+                var endOfDay = parsedDate.Date.AddDays(1);
+
+                // Get booked appointment times for this trainer on this date
+                var bookedTimes = await _context.Appointments
+                    .Include(a => a.Service)
+                    .Where(a => a.TrainerId == id)
+                    .Where(a => a.AppointmentDate >= startOfDay && a.AppointmentDate < endOfDay)
+                    .Where(a => a.Status != "Cancelled")
+                    .Select(a => new { 
+                        Start = a.AppointmentDate.TimeOfDay, 
+                        Duration = a.Service != null ? a.Service.DurationMinutes : 60 
+                    })
+                    .ToListAsync();
+
+                // Generate hourly slots within trainer's working hours
+                // Fallback to default hours (08:00-20:00) if trainer has no hours set
+                var availableSlots = new List<object>();
+                var startTime = trainer.StartTime == TimeSpan.Zero ? new TimeSpan(8, 0, 0) : trainer.StartTime;
+                var endTime = trainer.EndTime == TimeSpan.Zero ? new TimeSpan(20, 0, 0) : trainer.EndTime;
+                var currentTime = startTime;
+                
+                while (currentTime < endTime)
+                {
+                    var slotStart = currentTime;
+                    var slotEnd = currentTime.Add(TimeSpan.FromHours(1));
+                    
+                    // Check if this slot overlaps with any booked appointment
+                    var isBooked = bookedTimes.Any(bt => 
+                        slotStart < bt.Start.Add(TimeSpan.FromMinutes(bt.Duration)) && 
+                        slotEnd > bt.Start);
+                    
+                    availableSlots.Add(new
+                    {
+                        Time = slotStart.ToString(@"hh\:mm"),
+                        Available = !isBooked
+                    });
+                    
+                    currentTime = currentTime.Add(TimeSpan.FromHours(1));
+                }
+
+                return Ok(new
+                {
+                    TrainerId = id,
+                    Date = parsedDate.ToString("yyyy-MM-dd"),
+                    TrainerName = $"{trainer.FirstName} {trainer.LastName}",
+                    WorkingHours = $"{trainer.StartTime:hh\\:mm} - {trainer.EndTime:hh\\:mm}",
+                    TimeSlots = availableSlots
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Error loading time slots", Error = ex.Message });
+            }
+        }
     }
 
     [Route("api/[controller]")]
