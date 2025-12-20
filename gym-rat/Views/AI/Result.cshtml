@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Your Fitness Plan";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h4 class="mb-0"><i class="bi bi-clipboard-check"></i> Your Personal Fitness Plan</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3 text-center">
+                            <div class="bg-light rounded p-3">
+                                <i class="bi bi-speedometer2 fs-2 text-primary"></i>
+                                <div class="fw-bold">@ViewBag.Weight kg</div>
+                                <small class="text-muted">Weight</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="bg-light rounded p-3">
+                                <i class="bi bi-arrows-vertical fs-2 text-primary"></i>
+                                <div class="fw-bold">@ViewBag.Height cm</div>
+                                <small class="text-muted">Height</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="bg-light rounded p-3">
+                                <i class="bi bi-calendar fs-2 text-primary"></i>
+                                <div class="fw-bold">@ViewBag.Age</div>
+                                <small class="text-muted">Age</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <div class="bg-light rounded p-3">
+                                <i class="bi bi-bullseye fs-2 text-success"></i>
+                                <div class="fw-bold">@ViewBag.Goal</div>
+                                <small class="text-muted">Goal</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="plan-content">
+                        @Html.Raw(Markdig.Markdown.ToHtml(ViewBag.Plan?.ToString() ?? ""))
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-arrow-left"></i> Create New Plan
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .plan-content h1, .plan-content h2, .plan-content h3 {
+        color: #667eea;
+        margin-top: 1.5rem;
+    }
+    .plan-content ul, .plan-content ol {
+        padding-left: 1.5rem;
+    }
+    .plan-content li {
+        margin-bottom: 0.5rem;
+    }
+    .plan-content strong {
+        color: #333;
+    }
+    @@media print {
+        .card-footer, .navbar { display: none !important; }
+    }
+</style>

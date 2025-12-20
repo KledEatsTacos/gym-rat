@@ -29,6 +29,9 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // Register the EmailSender service
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+// Register AI Service
+builder.Services.AddSingleton<IGeminiService, GeminiService>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
