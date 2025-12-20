@@ -32,6 +32,9 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // Register AI Service
 builder.Services.AddSingleton<IGeminiService, GeminiService>();
 
+// Register Image Generation Service
+builder.Services.AddSingleton<IImageGenerationService, HuggingFaceImageService>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 

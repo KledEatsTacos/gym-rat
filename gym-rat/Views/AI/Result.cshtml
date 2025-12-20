@@ -41,7 +41,20 @@
                         </div>
                     </div>
 
-                    <hr />
+                    @if (ViewBag.GeneratedImage != null)
+                    {
+                        <div class="text-center mb-4">
+                            <h5 class="text-muted mb-3"><i class="bi bi-image"></i> Your Fitness Goal Visualization</h5>
+                            <img src="data:image/png;base64,@ViewBag.GeneratedImage" 
+                                 alt="AI Generated Fitness Goal" 
+                                 class="img-fluid rounded shadow" 
+                                 style="max-height: 400px;" />
+                            <p class="text-muted small mt-2">
+                                <i class="bi bi-stars"></i> AI-generated visualization of your fitness goal
+                            </p>
+                        </div>
+                        <hr />
+                    }
 
                     <div class="plan-content">
                         @Html.Raw(Markdig.Markdown.ToHtml(ViewBag.Plan?.ToString() ?? ""))

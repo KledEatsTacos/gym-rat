@@ -8,10 +8,12 @@ namespace gym_rat.Controllers
     public class AIController : Controller
     {
         private readonly IGeminiService _geminiService;
+        private readonly IImageGenerationService _imageService;
 
-        public AIController(IGeminiService geminiService)
+        public AIController(IGeminiService geminiService, IImageGenerationService imageService)
         {
             _geminiService = geminiService;
+            _imageService = imageService;
         }
 
         // GET: AI/Index - Show the form
@@ -39,7 +41,12 @@ namespace gym_rat.Controllers
                 imageData = memoryStream.ToArray();
             }
 
+            // Generate text plan with Gemini
             var plan = await _geminiService.GenerateFitnessPlanAsync(weight, height, age, gender, goal, imageData);
+            
+            // Generate motivational image
+            var imagePrompt = GenerateImagePrompt(gender, goal);
+            var generatedImage = await _imageService.GenerateImageAsync(imagePrompt, imageData);
             
             ViewBag.Plan = plan;
             ViewBag.Weight = weight;
@@ -48,8 +55,31 @@ namespace gym_rat.Controllers
             ViewBag.Gender = gender;
             ViewBag.Goal = goal;
             ViewBag.HasPhoto = imageData != null;
+            
+            // Convert generated image to base64 for display
+            if (generatedImage != null)
+            {
+                ViewBag.GeneratedImage = Convert.ToBase64String(generatedImage);
+            }
 
             return View("Result");
+        }
+
+        private string GenerateImagePrompt(string gender, string goal)
+        {
+            var bodyType = gender.ToLower() == "male" ? "muscular athletic man" : "fit athletic woman";
+            
+            var goalDescription = goal.ToLower() switch
+            {
+                "lose weight" => "lean fit body, toned muscles, healthy physique",
+                "build muscle" => "very muscular bodybuilder physique, defined muscles",
+                "stay fit" => "athletic healthy body, active lifestyle",
+                "increase endurance" => "lean athletic runner physique, cardio fitness",
+                "improve flexibility" => "lean flexible yoga body, graceful pose",
+                _ => "healthy fit athletic body"
+            };
+
+            return $"Professional fitness photo of a {bodyType}, {goalDescription}, gym background, motivational, high quality, realistic";
         }
     }
 }
