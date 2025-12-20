@@ -106,12 +106,15 @@ namespace gym_rat.Controllers
                 return View();
             }
 
+            // Convert to UTC for PostgreSQL
+            var utcAppointmentDate = DateTime.SpecifyKind(AppointmentDate, DateTimeKind.Utc);
+
             // Check for overlapping appointments for this trainer
-            var appointmentEnd = AppointmentDate.AddMinutes(service.DurationMinutes);
+            var appointmentEnd = utcAppointmentDate.AddMinutes(service.DurationMinutes);
             var hasOverlap = await _context.Appointments
                 .Where(a => a.TrainerId == TrainerId && a.Status != "Cancelled")
                 .Where(a => a.AppointmentDate < appointmentEnd && 
-                           a.AppointmentDate.AddMinutes(a.Service!.DurationMinutes) > AppointmentDate)
+                           a.AppointmentDate.AddMinutes(a.Service!.DurationMinutes) > utcAppointmentDate)
                 .AnyAsync();
 
             if (hasOverlap)
@@ -127,7 +130,7 @@ namespace gym_rat.Controllers
                 MemberId = user.Id,
                 TrainerId = TrainerId,
                 ServiceId = ServiceId,
-                AppointmentDate = AppointmentDate,
+                AppointmentDate = utcAppointmentDate,
                 Status = "Pending"
             };
 
