@@ -43,12 +43,7 @@
                             <p class="card-text text-muted small">
                                 <i class="bi bi-clock"></i> Available: @item.StartTime.ToString(@"hh\:mm") - @item.EndTime.ToString(@"hh\:mm")
                             </p>
-                            @if (item.Gym != null)
-                            {
-                                <p class="card-text text-muted small">
-                                    <i class="bi bi-building"></i> @item.Gym.Name
-                                </p>
-                            }
+
                         </div>
                         <div class="card-footer bg-white border-0 pb-4 text-center">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">
