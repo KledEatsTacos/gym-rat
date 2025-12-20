@@ -46,7 +46,8 @@ namespace gym_rat.Services
 
         private async Task<byte[]?> GenerateTxt2ImgAsync(string prompt)
         {
-            var url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
+            // Use SDXL 1.0 with the router endpoint
+            var url = "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0";
             
             var requestBody = new 
             { 
@@ -62,29 +63,33 @@ namespace gym_rat.Services
             for (int attempt = 1; attempt <= 3; attempt++)
             {
                 var response = await _httpClient.PostAsync(url, content);
-                var responseContent = await response.Content.ReadAsStringAsync();
                 
-                if (response.IsSuccessStatusCode)
+                // Check Content-Type to decide how to read the responses
+                var contentType = response.Content.Headers.ContentType?.MediaType;
+                
+                if (response.IsSuccessStatusCode && contentType != null && contentType.StartsWith("image/"))
                 {
-                    // Check if it's actually image data (not JSON error)
                     var bytes = await response.Content.ReadAsByteArrayAsync();
-                    if (bytes.Length > 1000) // Valid images are larger than 1KB
+                    if (bytes.Length > 1000)
                     {
                         _logger.LogInformation($"Image generated successfully ({bytes.Length} bytes)");
                         return bytes;
                     }
                 }
+
+                // If not an image (error or loading message), read as string
+                var responseContent = await response.Content.ReadAsStringAsync();
                 
                 // Check if model is loading
                 if (responseContent.Contains("loading") || responseContent.Contains("estimated_time"))
                 {
-                    _logger.LogInformation($"Model is loading, attempt {attempt}/3, waiting...");
+                    _logger.LogInformation($"Model is loading (attempt {attempt}/3), waiting...");
                     await Task.Delay(TimeSpan.FromSeconds(20));
                     continue;
                 }
                 
-                // Some other error
-                _logger.LogError($"HuggingFace API error (attempt {attempt}): {responseContent}");
+                // Log error
+                _logger.LogError($"HuggingFace API error (attempt {attempt}): {response.StatusCode} - {responseContent}");
                 
                 if (attempt < 3)
                 {

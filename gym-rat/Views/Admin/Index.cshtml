@@ -1,0 +1,170 @@
+@model gym_rat.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75 small text-uppercase fw-bold">Total Members</div>
+                            <div class="fs-2 fw-bold">@Model.TotalMembers</div>
+                        </div>
+                        <i class="bi bi-people fs-1 text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75 small text-uppercase fw-bold">Trainers</div>
+                            <div class="fs-2 fw-bold">@Model.TotalTrainers</div>
+                        </div>
+                        <i class="bi bi-person-badge fs-1 text-white-50"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between small border-0 bg-transparent text-white-50">
+                        <a class="text-white stretched-link" asp-controller="Trainers" asp-action="Index">Manage Trainers</a>
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75 small text-uppercase fw-bold">Services</div>
+                            <div class="fs-2 fw-bold">@Model.TotalServices</div>
+                        </div>
+                        <i class="bi bi-activity fs-1 text-white-50"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between small border-0 bg-transparent text-white-50">
+                        <a class="text-white stretched-link" asp-controller="Services" asp-action="Index">Manage Services</a>
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="me-3">
+                            <div class="text-white-75 small text-uppercase fw-bold">Pending Appointments</div>
+                            <div class="fs-2 fw-bold">@Model.PendingAppointments</div>
+                        </div>
+                        <i class="bi bi-clock-history fs-1 text-white-50"></i>
+                    </div>
+                    <div class="card-footer d-flex align-items-center justify-content-between small border-0 bg-transparent text-white-50">
+                        <a class="text-white stretched-link" asp-controller="Appointments" asp-action="Manage">Review Requests</a>
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-list-task me-2"></i>Recent Appointments</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Service</th>
+                                    <th>Trainer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentAppointments.Any())
+                                {
+                                    @foreach (var item in Model.RecentAppointments)
+                                    {
+                                        <tr>
+                                            <td><i class="bi bi-person-circle text-secondary me-2"></i>@item.Member?.Email</td>
+                                            <td>@item.Service?.Name</td>
+                                            <td>@item.Trainer?.FirstName @item.Trainer?.LastName</td>
+                                            <td>@item.AppointmentDate.ToString("g")</td>
+                                            <td>
+                                                @if (item.Status == "Pending")
+                                                {
+                                                    <span class="badge bg-warning text-dark">Pending</span>
+                                                }
+                                                else if (item.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@item.Status</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">Thinking about lifting? No appointments yet.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a asp-controller="Appointments" asp-action="Manage" class="text-decoration-none">View All Appointments</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Links Side Panel -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a asp-controller="Trainers" asp-action="Create" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Add New Trainer
+                        <i class="bi bi-plus-circle"></i>
+                    </a>
+                    <a asp-controller="Services" asp-action="Create" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Add New Service
+                        <i class="bi bi-plus-circle"></i>
+                    </a>
+                    <a asp-controller="AI" asp-action="Index" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        Test AI Planner
+                        <i class="bi bi-robot"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
