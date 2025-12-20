@@ -29,8 +29,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 // Register the EmailSender service
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-// Register AI Service
-builder.Services.AddSingleton<IGeminiService, GeminiService>();
+// Register AI Text Service (Groq)
+builder.Services.AddSingleton<IAITextService, GroqService>();
 
 // Register Image Generation Service
 builder.Services.AddSingleton<IImageGenerationService, HuggingFaceImageService>();

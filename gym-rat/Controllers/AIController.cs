@@ -7,12 +7,12 @@ namespace gym_rat.Controllers
     [Authorize]
     public class AIController : Controller
     {
-        private readonly IGeminiService _geminiService;
+        private readonly IAITextService _textService;
         private readonly IImageGenerationService _imageService;
 
-        public AIController(IGeminiService geminiService, IImageGenerationService imageService)
+        public AIController(IAITextService textService, IImageGenerationService imageService)
         {
-            _geminiService = geminiService;
+            _textService = textService;
             _imageService = imageService;
         }
 
@@ -41,10 +41,10 @@ namespace gym_rat.Controllers
                 imageData = memoryStream.ToArray();
             }
 
-            // Generate text plan with Gemini
-            var plan = await _geminiService.GenerateFitnessPlanAsync(weight, height, age, gender, goal, imageData);
+            // Generate text plan with Groq (Llama 3.3)
+            var plan = await _textService.GenerateFitnessPlanAsync(weight, height, age, gender, goal, imageData);
             
-            // Generate motivational image
+            // Generate motivational image with HuggingFace
             var imagePrompt = GenerateImagePrompt(gender, goal);
             var generatedImage = await _imageService.GenerateImageAsync(imagePrompt, imageData);
             

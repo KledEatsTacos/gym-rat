@@ -22,23 +22,20 @@ namespace gym_rat.Services
             _logger = logger;
             
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiToken);
-            _httpClient.Timeout = TimeSpan.FromMinutes(2); // Image generation can be slow
+            _httpClient.Timeout = TimeSpan.FromMinutes(3); // Model loading can be slow
         }
 
         public async Task<byte[]?> GenerateImageAsync(string prompt, byte[]? sourceImage = null)
         {
             try
             {
-                if (sourceImage != null)
-                {
-                    // Image-to-image transformation
-                    return await GenerateImg2ImgAsync(prompt, sourceImage);
-                }
-                else
-                {
-                    // Text-to-image generation
-                    return await GenerateTxt2ImgAsync(prompt);
-                }
+                // Always use text-to-image for now (img2img is more complex)
+                return await GenerateTxt2ImgAsync(prompt);
+            }
+            catch (TaskCanceledException)
+            {
+                _logger.LogWarning("Image generation timed out");
+                return null;
             }
             catch (Exception ex)
             {
@@ -51,55 +48,52 @@ namespace gym_rat.Services
         {
             var url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
             
-            var requestBody = new { inputs = prompt };
+            var requestBody = new 
+            { 
+                inputs = prompt,
+                options = new { wait_for_model = true } // Wait if model is loading
+            };
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             _logger.LogInformation($"Generating image with prompt: {prompt}");
             
-            var response = await _httpClient.PostAsync(url, content);
-            
-            if (!response.IsSuccessStatusCode)
+            // Retry logic for model loading
+            for (int attempt = 1; attempt <= 3; attempt++)
             {
-                var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError($"HuggingFace API error: {error}");
-                return null;
-            }
-
-            return await response.Content.ReadAsByteArrayAsync();
-        }
-
-        private async Task<byte[]?> GenerateImg2ImgAsync(string prompt, byte[] sourceImage)
-        {
-            // Use SDXL refiner or img2img endpoint
-            var url = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-refiner-1.0";
-            
-            using var formData = new MultipartFormDataContent();
-            
-            // Add the source image
-            var imageContent = new ByteArrayContent(sourceImage);
-            imageContent.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            formData.Add(imageContent, "image", "source.jpg");
-            
-            // Add the prompt as form field
-            formData.Add(new StringContent(prompt), "prompt");
-            formData.Add(new StringContent("0.35"), "strength"); // How much to change (0.35 = moderate transformation)
-
-            _logger.LogInformation($"Generating img2img with prompt: {prompt}");
-            
-            var response = await _httpClient.PostAsync(url, formData);
-            
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                _logger.LogError($"HuggingFace img2img error: {error}");
+                var response = await _httpClient.PostAsync(url, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
                 
-                // Fallback to text-to-image if img2img fails
-                _logger.LogInformation("Falling back to text-to-image");
-                return await GenerateTxt2ImgAsync(prompt);
+                if (response.IsSuccessStatusCode)
+                {
+                    // Check if it's actually image data (not JSON error)
+                    var bytes = await response.Content.ReadAsByteArrayAsync();
+                    if (bytes.Length > 1000) // Valid images are larger than 1KB
+                    {
+                        _logger.LogInformation($"Image generated successfully ({bytes.Length} bytes)");
+                        return bytes;
+                    }
+                }
+                
+                // Check if model is loading
+                if (responseContent.Contains("loading") || responseContent.Contains("estimated_time"))
+                {
+                    _logger.LogInformation($"Model is loading, attempt {attempt}/3, waiting...");
+                    await Task.Delay(TimeSpan.FromSeconds(20));
+                    continue;
+                }
+                
+                // Some other error
+                _logger.LogError($"HuggingFace API error (attempt {attempt}): {responseContent}");
+                
+                if (attempt < 3)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(5));
+                }
             }
-
-            return await response.Content.ReadAsByteArrayAsync();
+            
+            _logger.LogError("All image generation attempts failed");
+            return null;
         }
     }
 }
